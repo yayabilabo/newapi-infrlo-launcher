@@ -31,22 +31,26 @@ cleanup() {
 trap cleanup EXIT
 
 echo "Downloading New API ${VERSION} for $(uname -m)"
-if command -v curl >/dev/null 2>&1; then
+if command -v node >/dev/null 2>&1; then
+  node ./download.mjs "$URL" "$TMP" "$SHA256"
+elif command -v curl >/dev/null 2>&1; then
   curl --fail --location --retry 3 --connect-timeout 20 --output "$TMP" "$URL"
 elif command -v wget >/dev/null 2>&1; then
   wget --tries=3 --timeout=30 --output-document="$TMP" "$URL"
 else
-  echo "Neither curl nor wget is available" >&2
+  echo "No supported downloader is available" >&2
   exit 1
 fi
 
-if command -v sha256sum >/dev/null 2>&1; then
-  printf '%s  %s\n' "$SHA256" "$TMP" | sha256sum --check -
-elif command -v shasum >/dev/null 2>&1; then
-  printf '%s  %s\n' "$SHA256" "$TMP" | shasum -a 256 --check -
-else
-  echo "No SHA-256 verifier is available" >&2
-  exit 1
+if ! command -v node >/dev/null 2>&1; then
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s  %s\n' "$SHA256" "$TMP" | sha256sum --check -
+  elif command -v shasum >/dev/null 2>&1; then
+    printf '%s  %s\n' "$SHA256" "$TMP" | shasum -a 256 --check -
+  else
+    echo "No SHA-256 verifier is available" >&2
+    exit 1
+  fi
 fi
 
 chmod 0755 "$TMP"
