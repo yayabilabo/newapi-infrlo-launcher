@@ -8,6 +8,6 @@ if [[ ! -x ./new-api ]]; then
 fi
 
 mkdir -p ./logs
-PORT="${PORT:-3000}"
+PORT="${PORT:-5000}"
 echo "Starting New API on port ${PORT}"
 exec ./new-api --port "$PORT" --log-dir ./logs
