@@ -1,0 +1,7 @@
+new-api
+.new-api.download.*
+logs/
+data/
+*.db
+*.db-shm
+*.db-wal
