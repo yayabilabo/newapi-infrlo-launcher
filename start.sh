@@ -17,5 +17,15 @@ export AXONHUB_SERVER_PORT="${PORT:-3000}"
 export AXONHUB_LOG_OUTPUT="${AXONHUB_LOG_OUTPUT:-stdio}"
 export SSL_CERT_FILE="${SSL_CERT_FILE:-$PWD/cacert.pem}"
 
-echo "Starting AxonHub on port ${AXONHUB_SERVER_PORT}"
-exec ./axonhub
+echo "Runtime PORT=${PORT:-<unset>}; AxonHub port=${AXONHUB_SERVER_PORT}"
+
+./axonhub &
+pid=$!
+sleep 3
+
+if command -v curl >/dev/null 2>&1; then
+  echo "Local health check:"
+  curl -sS -i "http://127.0.0.1:${AXONHUB_SERVER_PORT}/health" || true
+fi
+
+wait "$pid"
