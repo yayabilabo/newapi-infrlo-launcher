@@ -1,0 +1,9 @@
+{
+  "name": "newapi-infrlo-launcher",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "bash ./prepare.sh",
+    "start": "bash ./start.sh"
+  }
+}
