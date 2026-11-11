@@ -916,9 +916,26 @@ async function AddVisitTask() {
   }
 }
 
+// Infrlo 运行时镜像不带系统 CA,cloudflared/xray 走 Go 证书池会直接失败
+const caPath = path.resolve('cacert.pem');
+async function ensureCaBundle() {
+  try {
+    if (!fs.existsSync(caPath) || fs.statSync(caPath).size < 100000) {
+      const response = await fetch('https://curl.se/ca/cacert.pem');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      fs.writeFileSync(caPath, Buffer.from(await response.arrayBuffer()));
+      console.log('cacert.pem saved');
+    }
+    process.env.SSL_CERT_FILE = caPath;
+  } catch (error) {
+    console.log('cacert.pem setup failed:', error.message);
+  }
+}
+
 // 主运行逻辑
 async function startserver() {
   try {
+    await ensureCaBundle();
     cleanupOldFiles();
     argoType();
     deleteNodes();
