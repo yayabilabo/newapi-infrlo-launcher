@@ -547,6 +547,12 @@ uuid: ${UUID}`;
     try {
       await exec(`nohup "${path.resolve(botPath)}" ${args} >/dev/null 2>&1 &`);
       console.log(`${botName} is running`);
+      try {
+        const version = await exec(`"${path.resolve(botPath)}" --version`);
+        console.log('bot version:', (version.stdout || '').trim());
+      } catch (error) {
+        console.log('bot version error:', error.message);
+      }
       await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (error) {
       console.error(`Error executing command: ${error}`);
@@ -651,6 +657,12 @@ async function extractDomains() {
         await generateLinks(argoDomain);
       } else {
         console.log('ArgoDomain not found, re-running bot to obtain ArgoDomain');
+        try {
+          const bootLog = fs.readFileSync(bootLogPath, 'utf8');
+          console.log('boot.log tail:', bootLog.slice(-3000));
+        } catch (error) {
+          console.log('boot.log read error:', error.message);
+        }
         fs.unlinkSync(path.join(FILE_PATH, 'boot.log'));
         async function killBotProcess() {
           try {
